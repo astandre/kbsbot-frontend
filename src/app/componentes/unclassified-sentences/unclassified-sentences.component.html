@@ -1,0 +1,110 @@
+<h2>Agent: {{agent}}</h2>
+<p>Ayudanos a clasificar las sentencias y entrenar al chatbot</p>
+<p>Sentencias no clasificadas:</p>
+<div class="input-group" *ngFor="let sentence of sentences">
+  <input type="text" class="form-control" aria-label="sentence" value="{{sentence.sentText}}" readonly>
+  <div class="input-group-append">
+    <div class="input-group-append">
+      <button class="btn btn-success" type="button"
+              (click)="clasificarClick($event, sentence)" data-toggle="modal"
+              data-target="#nlpModal">
+        Clasificar
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="nlpModal" tabindex="-1" role="dialog" aria-labelledby="nlpModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="nlpModalLabel">Resultados de clasificacion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h3>Sentencia:</h3>
+        <p>{{currentSentence}}</p>
+        <div class="">
+          <h3>Intencion encontrada:</h3>
+          <p *ngIf="intent">{{intent.name}} ({{intent.prob}}%)</p>
+        </div>
+        <div class="">
+          <h3>Entidades</h3>
+          <div *ngIf="entities?.length == 0;else entities_list">
+            <p>No se han encontrado entidades <i class="fas fa-frown"></i></p>
+          </div>
+          <ng-template #entities_list>
+            <ul>
+              <li *ngFor="let entity of entities"> {{entity.name}} ({{entity.prob}}%) [{{entity.entityType}}]</li>
+            </ul>
+          </ng-template>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <p>La clasificacion es correcta?</p>
+        <button type="button" class="btn btn-success" data-dismiss="modal"
+                (click)="aceptarClasificacion()">
+          Correcto
+        </button>
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-dismiss="modal"
+                data-target="#correctModal">Incorrecto
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="correctModal" tabindex="-1" role="dialog" aria-labelledby="correctModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="correctModalLabel"> Clasificador de intencion:</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h3>Sentencia:</h3>
+        <p>{{currentSentence}}</p>
+        <h3>Selecciona la intencion correcta:</h3>
+        <div class="input-group">
+          <select class="custom-select" id="intencionCorrecta" aria-label="Example select with button addon">
+            <option *ngFor="let intent of intents" [value]="intent.name">{{intent.name}}</option>
+          </select>
+          <div class="input-group-append">
+            <button type="button" class="btn btn-success" data-dismiss="modal"
+                    (click)="aceptarClasificacion()">
+              Aceptar
+            </button>
+          </div>
+        </div>
+
+        <h4>Niguna corresponde?</h4>
+        <h4>Propon una nueva intencion!</h4>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="Nueva intencion" aria-label="Nueva intencion"
+                 aria-describedby="button-addon2" [value]="newIntent" #newIntentValue>
+          <div class="input-group-append">
+            <button class="btn btn-success" type="button" id="button-addon2" data-dismiss="modal"
+                    (click)="aceptarClasificacion(currentSentence, newIntentValue.value)">Añadir
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
